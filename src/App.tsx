@@ -620,24 +620,24 @@ const downloadSinglePdf = (cod: string) => {
 
                 <section>
                   <div className="flex items-center justify-between mb-3 sap-table-header p-2 rounded-t">
-  <div className="flex items-center space-x-4">
-    <h3 className="text-[11px] font-bold uppercase tracking-widest flex items-center space-x-2">
-      <Mail className="w-3.5 h-3.5" />
-      <span>Rascunhos de Email (Outlook Drafts)</span>
-    </h3>
-  </div>
-
-  <button
-    onClick={resetSentEmails}
-    className="text-[9px] text-slate-500 hover:text-red-600 transition-colors flex items-center space-x-1 border border-slate-300 bg-white px-2 py-0.5 rounded shadow-sm"
-    title="Limpar marcações de enviado"
-    type="button"
-  >
-    <Trash2 className="w-3 h-3" />
-    <span>Limpar Histórico de Envio</span>
-  </button>
-</div>
-  
+                    <div className="flex items-center space-x-4">
+                      <h3 className="text-[11px] font-bold uppercase tracking-widest flex items-center space-x-2">
+                        <Mail className="w-3.5 h-3.5" />
+                        <span>Rascunhos de Email (Outlook Drafts)</span>
+                      </h3>
+                      <button 
+                        onClick={resetSentEmails}
+                        className="text-[9px] text-slate-500 hover:text-red-600 transition-colors flex items-center space-x-1 border border-slate-300 bg-white px-2 py-0.5 rounded shadow-sm"
+                        title="Limpar marcações de enviado"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                        <span>Limpar Histórico</span>
+                      </button>
+                    </div>
+                    <div className="text-[10px] bg-[#FFEB3B] text-black px-2 py-0.5 rounded border border-yellow-500 font-bold flex items-center space-x-1">
+                      <AlertCircle className="w-3 h-3" />
+                      <span>CLIQUE EM ENVIAR NO OUTLOOK</span>
+                    </div>
                   </div>
                   
                   <div className="border border-slate-300 bg-white rounded-b overflow-hidden max-h-[380px] overflow-y-auto">
