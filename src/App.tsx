@@ -684,6 +684,7 @@ const downloadSinglePdf = (cod: string) => {
     onClick={() => copyToClipboard(to)}
     title="Copiar destinatários"
     className="sap-btn-secondary p-1"
+    type="button"
   >
     <Copy className="w-3.5 h-3.5" />
   </button>
@@ -696,7 +697,7 @@ const downloadSinglePdf = (cod: string) => {
     <ExternalLink className="w-3.5 h-3.5 text-[#2F5F8F]" />
   </a>
 
-  {/* ✅ BOTÃO PEQUENO: Exportar apenas o PDF */}
+  {/* ✅ BOTÃO PDF */}
   <button
     type="button"
     onClick={() => downloadSinglePdf(eml.cod)}
@@ -711,10 +712,10 @@ const downloadSinglePdf = (cod: string) => {
     download={eml.name}
     onClick={() => toggleEmailSent(eml.cod)}
     title={isSent ? "Reabrir Rascunho" : "Gerar .EML com Anexo"}
-    className={`sap-btn-primary px-3 space-x-1.5 transition-all ${isSent ? 'btn-sent opacity-90' : ''}`}
+    className={`sap-btn-primary px-3 space-x-1.5 transition-all ${isSent ? "btn-sent opacity-90" : ""}`}
   >
     {isSent ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Download className="w-3.5 h-3.5" />}
-    <span className="text-[11px] font-bold uppercase">{isSent ? 'Enviado' : 'Enviar E-mail'}</span>
+    <span className="text-[11px] font-bold uppercase">{isSent ? "Enviado" : "Enviar E-mail"}</span>
   </a>
 </div>
           </div>
