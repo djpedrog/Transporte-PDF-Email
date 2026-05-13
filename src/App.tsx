@@ -682,7 +682,7 @@ export default function App() {
 
       <footer className="mt-8 text-center text-slate-500 text-[10px] uppercase tracking-widest space-y-1 pb-8">
         <p>Desenvolvido por Pedro Gameiro para uso interno (Sumol+Compal)</p>
-        <p>Processamento Local Client-Side & Layout SAP GUI inspired</p>
+        <p>Processamento Local Pela Equipa AFSN</p>
       </footer>
     </div>
   );
