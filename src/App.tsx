@@ -342,26 +342,6 @@ export default function App() {
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
   };
-  // Exportar apenas o PDF correspondente ao cod (Transportista)
-const downloadSinglePdf = (cod: string) => {
-  const pdf = results.pdfs.find(p => p.cod === cod);
-  if (!pdf) {
-    alert('PDF não encontrado para este código. Confirma se já foi processado.');
-    return;
-  }
-
-  const url = URL.createObjectURL(pdf.blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = pdf.name; // mantém o nome já tratado no processo
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-
-  // evita leaks
-  setTimeout(() => URL.revokeObjectURL(url), 0);
-};
-
 
   return (
     <div className="min-h-screen py-6 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
@@ -619,108 +599,91 @@ const downloadSinglePdf = (cod: string) => {
                 )}
 
                 <section>
-  <div className="flex items-center justify-between mb-3 sap-table-header p-2 rounded-t">
-    <div className="flex items-center space-x-4">
-      <h3 className="text-[11px] font-bold uppercase tracking-widest flex items-center space-x-2">
-        <Mail className="w-3.5 h-3.5" />
-        <span>Rascunhos de Email (Outlook Drafts)</span>
-      </h3>
-      <button
-        onClick={resetSentEmails}
-        className="text-[9px] text-slate-500 hover:text-red-600 transition-colors flex items-center space-x-1 border border-slate-300 bg-white px-2 py-0.5 rounded shadow-sm"
-        title="Limpar marcações de enviado"
-      >
-        <Trash2 className="w-3 h-3" />
-        <span>Limpar Histórico</span>
-      </button>
-    </div>
-    <div className="text-[10px] bg-[#FFEB3B] text-black px-2 py-0.5 rounded border border-yellow-500 font-bold flex items-center space-x-1">
-      <AlertCircle className="w-3 h-3" />
-      <span>CLIQUE EM ENVIAR NO OUTLOOK</span>
-    </div>
-  </div>
+                  <div className="flex items-center justify-between mb-3 sap-table-header p-2 rounded-t">
+                    <div className="flex items-center space-x-4">
+                      <h3 className="text-[11px] font-bold uppercase tracking-widest flex items-center space-x-2">
+                        <Mail className="w-3.5 h-3.5" />
+                        <span>Rascunhos de Email (Outlook Drafts)</span>
+                      </h3>
+                      <button 
+                        onClick={resetSentEmails}
+                        className="text-[9px] text-slate-500 hover:text-red-600 transition-colors flex items-center space-x-1 border border-slate-300 bg-white px-2 py-0.5 rounded shadow-sm"
+                        title="Limpar marcações de enviado"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                        <span>Limpar Histórico</span>
+                      </button>
+                    </div>
+                    <div className="text-[10px] bg-[#FFEB3B] text-black px-2 py-0.5 rounded border border-yellow-500 font-bold flex items-center space-x-1">
+                      <AlertCircle className="w-3 h-3" />
+                      <span>CLIQUE EM ENVIAR NO OUTLOOK</span>
+                    </div>
+                  </div>
+                  
+                  <div className="border border-slate-300 bg-white rounded-b overflow-hidden max-h-[380px] overflow-y-auto">
+                    {results.emls.map((eml, i) => {
+                      const firm = firmsData.find(f => normalizeKey(f.Cod) === eml.cod);
+                      if (!firm) return null;
+                      const to = [firm.Para1, firm.Para2, firm.Para3, firm.Para4, firm.Para5].filter(x => x).join(', ');
+                      const cc = [firm.Conhecimento1, firm.Conhecimento2, firm.Conhecimento3, firm.Conhecimento4, firm.Conhecimento5, firm.Conhecimento6].filter(x => x).join(', ');
+                      const today = new Intl.DateTimeFormat('pt-PT').format(new Date());
+                      
+                      const mailtoBody = `Exmos. ${firm.Nome}\n\nSegue em anexo ficheiro com os documentos em aberto à data de ${today}\nEstamos disponíveis para qualquer esclarecimento adicional que considerem relevante.\n\nAtentamente\nA equipa AFSN\n\nEm caso de dúvidas contactar faturacao@sumolcompal.pt`;
+                      const mailtoUrl = `mailto:${to}?cc=${cc}&subject=${encodeURIComponent(`Relatório de PA´s em aberto de ${firm.Nome}`)}&body=${encodeURIComponent(mailtoBody)}`;
+                      const isSent = sentEmails[eml.cod] === true;
 
-  <div className="border border-slate-300 bg-white rounded-b overflow-hidden max-h-[380px] overflow-y-auto">
-    {results.emls.map((eml, i) => {
-      const firm = firmsData.find(f => normalizeKey(f.Cod) === eml.cod);
-      if (!firm) return null;
-
-      const to = [firm.Para1, firm.Para2, firm.Para3, firm.Para4, firm.Para5].filter(x => x).join(', ');
-      const cc = [firm.Conhecimento1, firm.Conhecimento2, firm.Conhecimento3, firm.Conhecimento4, firm.Conhecimento5, firm.Conhecimento6].filter(x => x).join(', ');
-      const today = new Intl.DateTimeFormat('pt-PT').format(new Date());
-
-      const mailtoBody =
-        `Exmos. ${firm.Nome}\n\n` +
-        `Segue em anexo ficheiro com os documentos em aberto à data de ${today}\n` +
-        `Estamos disponíveis para qualquer esclarecimento adicional que considerem relevante.\n\n` +
-        `Atentamente\nA equipa AFSN\n\n` +
-        `Em caso de dúvidas contactar faturacao@sumolcompal.pt`;
-
-      const mailtoUrl =
-        `mailto:${to}?cc=${encodeURIComponent(cc)}` +
-        `&subject=${encodeURIComponent(`Relatório de PA´s em aberto de ${firm.Nome}`)}` +
-        `&body=${encodeURIComponent(mailtoBody)}`;
-
-      const isSent = sentEmails[eml.cod] === true;
-
-      return (
-        <div key={i} className="sap-table-row p-3 hover:bg-[#EAF2FF] transition-all group">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div className="flex-1">
-              <div className="flex items-center space-x-2 mb-0.5">
-                <span className={`font-bold text-[13px] transition-colors ${isSent ? 'text-slate-400' : 'text-[#1B1F23]'}`}>{firm.Nome}</span>
-                <span className={`text-[11px] px-1.5 border transition-colors rounded ${isSent ? 'bg-slate-50 text-slate-400 border-slate-200' : 'bg-slate-100 text-slate-600 border-slate-300 font-mono'}`}>{firm.Cod}</span>
-                {isSent && (
-                  <span className="sap-badge-sent text-[10px]">
-                    <CheckCircle2 className="w-3 h-3 mr-1" /> ENVIADO
-                  </span>
-                )}
+                      return (
+                        <div key={i} className="sap-table-row p-3 hover:bg-[#EAF2FF] transition-all group">
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div className="flex-1">
+                              <div className="flex items-center space-x-2 mb-0.5">
+                                <span className={`font-bold text-[13px] transition-colors ${isSent ? 'text-slate-400' : 'text-[#1B1F23]'}`}>{firm.Nome}</span>
+                                <span className={`text-[11px] px-1.5 border transition-colors rounded ${isSent ? 'bg-slate-50 text-slate-400 border-slate-200' : 'bg-slate-100 text-slate-600 border-slate-300 font-mono'}`}>{firm.Cod}</span>
+                                {isSent && <span className="sap-badge-sent text-[10px]"><CheckCircle2 className="w-3 h-3 mr-1" /> ENVIADO</span>}
+                              </div>
+                              <div className="text-[11px] text-slate-500 truncate max-w-lg">Para: {to}</div>
+                            </div>
+                            <div className="flex items-center space-x-1">
+                              <button onClick={() => copyToClipboard(to)} title="Copiar destinatários" className="sap-btn-secondary p-1">
+                                <Copy className="w-3.5 h-3.5" />
+                              </button>
+                              <a href={mailtoUrl} title="Mailto Link" className="sap-btn-secondary p-1">
+                                <ExternalLink className="w-3.5 h-3.5 text-[#2F5F8F]" />
+                              </a>
+                              <a 
+                                href={URL.createObjectURL(eml.blob)} 
+                                download={eml.name} 
+                                onClick={() => toggleEmailSent(eml.cod)}
+                                title={isSent ? "Reabrir Rascunho" : "Gerar .EML com Anexo"} 
+                                className={`sap-btn-primary px-3 space-x-1.5 transition-all ${isSent ? 'btn-sent opacity-90' : ''}`}
+                              >
+                                {isSent ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Download className="w-3.5 h-3.5" />}
+                                <span className="text-[11px] font-bold uppercase">{isSent ? 'Enviado' : 'Enviar E-mail'}</span>
+                              </a>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </section>
               </div>
-              <div className="text-[11px] text-slate-500 truncate max-w-lg">Para: {to}</div>
-            </div>
 
-            <div className="flex items-center space-x-1">
-  <button
-    onClick={() => copyToClipboard(to)}
-    title="Copiar destinatários"
-    className="sap-btn-secondary p-1"
-    type="button"
-  >
-    <Copy className="w-3.5 h-3.5" />
-  </button>
+              <div className="mt-8 flex justify-center border-t border-slate-200 pt-6">
+                 <button onClick={() => window.location.reload()} className="text-[11px] font-bold text-slate-400 hover:text-red-600 flex items-center space-x-2 uppercase tracking-widest">
+                   <Trash2 className="w-3.5 h-3.5" />
+                   <span>Resetar Aplicação</span>
+                 </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </main>
 
-  <a
-    href={mailtoUrl}
-    title="Mailto Link"
-    className="sap-btn-secondary p-1"
-  >
-    <ExternalLink className="w-3.5 h-3.5 text-[#2F5F8F]" />
-  </a>
-
-  {/* ✅ BOTÃO PDF */}
-  <button
-    type="button"
-    onClick={() => downloadSinglePdf(eml.cod)}
-    title="Exportar apenas o PDF"
-    className="sap-btn-secondary p-1"
-  >
-    <span className="text-[10px] font-bold">PDF</span>
-  </button>
-
-  <a
-    href={URL.createObjectURL(eml.blob)}
-    download={eml.name}
-    onClick={() => toggleEmailSent(eml.cod)}
-    title={isSent ? "Reabrir Rascunho" : "Gerar .EML com Anexo"}
-    className={`sap-btn-primary px-3 space-x-1.5 transition-all ${isSent ? "btn-sent opacity-90" : ""}`}
-  >
-    {isSent ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Download className="w-3.5 h-3.5" />}
-    <span className="text-[11px] font-bold uppercase">{isSent ? "Enviado" : "Enviar E-mail"}</span>
-  </a>
-</div>
-          </div>
-        </div>
-      );
-    })}
-  </div>
-</section>
+      <footer className="mt-8 text-center text-slate-500 text-[10px] uppercase tracking-widest space-y-1 pb-8">
+        <p>Desenvolvido por Pedro Gameiro para uso interno (Sumol+Compal)</p>
+        <p>Processamento Local Pela Equipa AFSN</p>
+      </footer>
+    </div>
+  );
+}
