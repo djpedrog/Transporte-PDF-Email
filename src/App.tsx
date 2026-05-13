@@ -680,39 +680,43 @@ const downloadSinglePdf = (cod: string) => {
             </div>
 
             <div className="flex items-center space-x-1">
-              <button
-                onClick={() => copyToClipboard(to)}
-                title="Copiar destinatários"
-                className="sap-btn-secondary p-1"
-              >
-                <Copy className="w-3.5 h-3.5" />
-              </button>
+  <button
+    onClick={() => copyToClipboard(to)}
+    title="Copiar destinatários"
+    className="sap-btn-secondary p-1"
+  >
+    <Copy className="w-3.5 h-3.5" />
+  </button>
 
-              <a href={mailtoUrl} title="Mailto Link" className="sap-btn-secondary p-1">
-                <ExternalLink className="w-3.5 h-3.5 text-[#2F5F8F]" />
-              </a>
+  <a
+    href={mailtoUrl}
+    title="Mailto Link"
+    className="sap-btn-secondary p-1"
+  >
+    <ExternalLink className="w-3.5 h-3.5 text-[#2F5F8F]" />
+  </a>
 
-              {/* ✅ NOVO BOTÃO: Exportar apenas o PDF correspondente a este código */}
-              <button
-                type="button"
-                onClick={() => downloadSinglePdf(eml.cod)}
-                title="Exportar apenas o PDF"
-                className="sap-btn-secondary p-1"
-              >
-                <span className="text-[10px] font-bold">PDF</span>
-              </button>
+  {/* ✅ BOTÃO PEQUENO: Exportar apenas o PDF */}
+  <button
+    type="button"
+    onClick={() => downloadSinglePdf(eml.cod)}
+    title="Exportar apenas o PDF"
+    className="sap-btn-secondary p-1"
+  >
+    <span className="text-[10px] font-bold">PDF</span>
+  </button>
 
-              <a
-                href={URL.createObjectURL(eml.blob)}
-                download={eml.name}
-                onClick={() => toggleEmailSent(eml.cod)}
-                title={isSent ? "Reabrir Rascunho" : "Gerar .EML com Anexo"}
-                className={`sap-btn-primary px-3 space-x-1.5 transition-all ${isSent ? 'btn-sent opacity-90' : ''}`}
-              >
-                {isSent ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Download className="w-3.5 h-3.5" />}
-                <span className="text-[11px] font-bold uppercase">{isSent ? 'Enviado' : 'Enviar E-mail'}</span>
-              </a>
-            </div>
+  <a
+    href={URL.createObjectURL(eml.blob)}
+    download={eml.name}
+    onClick={() => toggleEmailSent(eml.cod)}
+    title={isSent ? "Reabrir Rascunho" : "Gerar .EML com Anexo"}
+    className={`sap-btn-primary px-3 space-x-1.5 transition-all ${isSent ? 'btn-sent opacity-90' : ''}`}
+  >
+    {isSent ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Download className="w-3.5 h-3.5" />}
+    <span className="text-[11px] font-bold uppercase">{isSent ? 'Enviado' : 'Enviar E-mail'}</span>
+  </a>
+</div>
           </div>
         </div>
       );
