@@ -670,6 +670,15 @@ const downloadSinglePdf = (cod: string) => {
                               <a href={mailtoUrl} title="Mailto Link" className="sap-btn-secondary p-1">
                                 <ExternalLink className="w-3.5 h-3.5 text-[#2F5F8F]" />
                               </a>
+                              <button
+  type="button"
+  onClick={() => downloadSinglePdf(eml.cod)}
+  title="Exportar apenas o PDF"
+  className="sap-btn-secondary p-1"
+>
+  <span className="text-[10px] font-bold">PDF</span>
+</button>
+
                               <a 
                                 href={URL.createObjectURL(eml.blob)} 
                                 download={eml.name} 
