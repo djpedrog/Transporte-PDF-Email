@@ -342,6 +342,26 @@ export default function App() {
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
   };
+  // Exportar apenas o PDF correspondente ao cod (Transportista)
+const downloadSinglePdf = (cod: string) => {
+  const pdf = results.pdfs.find(p => p.cod === cod);
+
+  if (!pdf) {
+    alert('PDF não encontrado para este código. Confirma se já foi processado.');
+    return;
+  }
+
+  const url = URL.createObjectURL(pdf.blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = pdf.name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+
+  // evita leaks
+  setTimeout(() => URL.revokeObjectURL(url), 0);
+};
 
   return (
     <div className="min-h-screen py-6 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
@@ -650,6 +670,15 @@ export default function App() {
                               <a href={mailtoUrl} title="Mailto Link" className="sap-btn-secondary p-1">
                                 <ExternalLink className="w-3.5 h-3.5 text-[#2F5F8F]" />
                               </a>
+                              <button
+  type="button"
+  onClick={() => downloadSinglePdf(eml.cod)}
+  title="Exportar apenas o PDF"
+  className="sap-btn-secondary p-1"
+>
+  <span className="text-[10px] font-bold">PDF</span>
+</button>
+
                               <a 
                                 href={URL.createObjectURL(eml.blob)} 
                                 download={eml.name} 
