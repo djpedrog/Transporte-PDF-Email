@@ -657,7 +657,15 @@ const downloadSinglePdf = (cod: string) => {
                               <div className="flex items-center space-x-2 mb-0.5">
                                 <span className={`font-bold text-[13px] transition-colors ${isSent ? 'text-slate-400' : 'text-[#1B1F23]'}`}>{firm.Nome}</span>
                                 <span className={`text-[11px] px-1.5 border transition-colors rounded ${isSent ? 'bg-slate-50 text-slate-400 border-slate-200' : 'bg-slate-100 text-slate-600 border-slate-300 font-mono'}`}>{firm.Cod}</span>
-                                {isSent && <span className="sap-badge-sent text-[10px]"><CheckCircle2 className="w-3 h-3 mr-1" /> ENVIADO</span>}
+                                {isSent && (
+  <span
+    className="inline-flex items-center text-[10px] px-2 py-0.5 rounded border border-emerald-700 bg-emerald-600 text-white font-bold uppercase"
+    title="Marcado como enviado"
+  >
+    <CheckCircle2 className="w-3 h-3 mr-1 text-white" />
+    ENVIADO
+  </span>
+)}
                               </div>
                               <div className="text-[11px] text-slate-500 truncate max-w-lg">Para: {to}</div>
                             </div>
