@@ -119,6 +119,7 @@ export default function App() {
 
   const parseExcels = async () => {
     if (!exportFile || !firmsFile) return;
+    resetSentEmails();
     setIsParsing(true);
     addLog('A ler ficheiros Excel...');
 
