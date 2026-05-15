@@ -314,6 +314,39 @@ export default function App() {
     };
   }, [transportData, firmsData]);
 
+  function getKeyRef3(r: TransportRecord): string {
+  // No teu parse já guardas 'Chave referência 3' normalizada.
+  // Mas aqui mantemos seguro (string + trim).
+  return String((r as any)['Chave referência 3'] ?? '').trim();
+}
+
+function buildRecordsForItem(item: any, recordsAll: TransportRecord[]): TransportRecord[] {
+  // ALL: devolve tudo
+  if (item.variant !== 'CENTER' || !item.centerToken) return recordsAll;
+
+  const token = item.centerToken;
+
+  // 1) linhas do centro (seed)
+  const seed = recordsAll.filter(r => String((r as any).Referência || '').includes(token));
+
+  // Se não há seed, devolve vazio (idealmente nem criávamos este item)
+  if (seed.length === 0) return [];
+
+  // 2) chaves referência 3 das seed (só as não vazias)
+  const keySet = new Set(seed.map(getKeyRef3).filter(k => k !== ''));
+
+  // 3) incluir:
+  // - as do centro
+  // - e as que partilham chave referência 3 com as do centro
+  return recordsAll.filter(r => {
+    const ref = String((r as any).Referência || '');
+    if (ref.includes(token)) return true;
+
+    const k = getKeyRef3(r);
+    return k !== '' && keySet.has(k);
+  });
+}
+  
   const processEverything = async () => {
     setIsProcessing(true);
     setActiveTab('processing');
@@ -344,6 +377,7 @@ const total = workItems.length;
 
   const firm = firmsData.find(f => normalizeKey(f.Cod) === cod);
   const recordsAll = transportData.filter(r => normalizeKey(r.Cliente) === cod);
+  const records = buildRecordsForItem(item, recordsAll);
 
   // Filtrar por centro (se aplicável)
   const records =
