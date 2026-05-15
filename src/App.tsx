@@ -484,44 +484,188 @@ const downloadSinglePdf = (cod: string) => {
                 </div>
               </div>
 
-              <div className="bg-[#1B1F23] rounded p-4 mb-6 text-slate-300 font-mono text-[11px] border border-black shadow-sm">
-                <h3 className="text-[#FFEB3B] font-bold mb-3 flex items-center space-x-2 uppercase text-[10px] tracking-widest">
-                  <AlertCircle className="w-3.5 h-3.5" />
-                  <span>Painel de Diagnóstico</span>
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <p><span className="text-slate-500">Linha Header (Export):</span> {diagnostics.headerRow}</p>
-                    <p><span className="text-slate-500">Registos Export:</span> {diagnostics.exportRows}</p>
-                    <p><span className="text-slate-500">Registos Firmas:</span> {diagnostics.firmsRows}</p>
-                    <div className="flex space-x-4 mt-2">
-                      <p><span className="text-slate-500">jsPDF:</span> {diagnostics.libHealth.jspdf ? <span className="text-emerald-400">OK</span> : <span className="text-red-400">ERRO</span>}</p>
-                      <p><span className="text-slate-500">AutoTable:</span> {diagnostics.libHealth.autotable ? <span className="text-emerald-400">OK</span> : <span className="text-red-400">ERRO</span>}</p>
-                    </div>
+              <div className="border border-slate-300 rounded overflow-hidden bg-white shadow-sm mb-6">
+  <div className="sap-table-header p-2 flex items-center justify-between">
+    <div className="flex items-center space-x-2">
+      <ShieldAlert className="w-3.5 h-3.5" />
+      <span className="text-[11px] font-bold uppercase tracking-widest">
+        Validação do Lote
+      </span>
+    </div>
+
+    <button
+      type="button"
+      onClick={() => setShowTechDetails(v => !v)}
+      className="sap-btn-secondary px-2 py-1 text-[10px] font-bold uppercase"
+      title="Mostrar/ocultar informação técnica"
+    >
+      {showTechDetails ? 'Ocultar detalhes técnicos' : 'Detalhes técnicos'}
+    </button>
+  </div>
+
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-slate-300">
+    {/* Checklist */}
+    <div className="bg-white p-4">
+      <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">
+        Checklist
+      </h4>
+
+      <div className="space-y-2 text-[11px]">
+        <div className="flex items-center space-x-2">
+          {exportFile ? (
+            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+          ) : (
+            <AlertCircle className="w-4 h-4 text-[#B00020]" />
+          )}
+          <span className="text-slate-700">Export carregado</span>
+        </div>
+
+        <div className="flex items-center space-x-2">
+          {firmsFile ? (
+            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+          ) : (
+            <AlertCircle className="w-4 h-4 text-[#B00020]" />
+          )}
+          <span className="text-slate-700">Base de Emails carregada</span>
+        </div>
+
+        <div className="flex items-center space-x-2">
+          {stats.totalRows > 0 ? (
+            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+          ) : (
+            <AlertCircle className="w-4 h-4 text-[#B00020]" />
+          )}
+          <span className="text-slate-700">
+            Registos lidos: <span className="font-bold">{stats.totalRows}</span>
+          </span>
+        </div>
+
+        <div className="flex items-center space-x-2">
+          {stats.uniqueClients > 0 ? (
+            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+          ) : (
+            <AlertCircle className="w-4 h-4 text-[#B00020]" />
+          )}
+          <span className="text-slate-700">
+            Transportistas detetados: <span className="font-bold">{stats.uniqueClients}</span>
+          </span>
+        </div>
+
+        <div className="flex items-center space-x-2">
+          {(diagnostics.libHealth.jspdf && diagnostics.libHealth.autotable) ? (
+            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+          ) : (
+            <AlertCircle className="w-4 h-4 text-[#B00020]" />
+          )}
+          <span className="text-slate-700">
+            PDF engine: jsPDF {diagnostics.libHealth.jspdf ? 'OK' : 'ERRO'} / AutoTable {diagnostics.libHealth.autotable ? 'OK' : 'ERRO'}
+          </span>
+        </div>
+
+        <div className="flex items-center space-x-2">
+          {stats.unmappedCount === 0 ? (
+            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+          ) : (
+            <AlertCircle className="w-4 h-4 text-orange-600" />
+          )}
+          <span className="text-slate-700">
+            Sem contacto:{' '}
+            <span className={`font-bold ${stats.unmappedCount === 0 ? 'text-slate-800' : 'text-orange-700'}`}>
+              {stats.unmappedCount}
+            </span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    {/* Resumo */}
+    <div className="bg-white p-4">
+      <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">
+        O que vai acontecer
+      </h4>
+
+      <div className="space-y-2 text-[11px] text-slate-700">
+        <div className="flex justify-between border-b border-slate-200 pb-1">
+          <span>PDFs a gerar</span>
+          <span className="font-bold">{stats.uniqueClients}</span>
+        </div>
+
+        <div className="flex justify-between border-b border-slate-200 pb-1">
+          <span>Emails a preparar</span>
+          <span className="font-bold">{Math.max(stats.uniqueClients - stats.unmappedCount, 0)}</span>
+        </div>
+
+        <div className="flex justify-between border-b border-slate-200 pb-1">
+          <span>Sem contacto (PDF sem email)</span>
+          <span className={`font-bold ${stats.unmappedCount === 0 ? 'text-slate-800' : 'text-orange-700'}`}>
+            {stats.unmappedCount}
+          </span>
+        </div>
+
+        {stats.unmappedCount > 0 && (
+          <div className="mt-3 p-2 bg-orange-50 border border-orange-200 rounded text-[11px] text-orange-800">
+            Existem transportistas sem correspondência na base de emails. Serão gerados PDFs genéricos sem rascunho de email.
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+
+  {/* Detalhes técnicos: COLA AQUI O PAINEL ANTIGO (o preto) */}
+ {showTechDetails && (
+  <div className="bg-[#1B1F23] text-slate-300 font-mono text-[11px] border-t border-black p-4">
+    <div className="rounded border border-slate-700 bg-transparent p-4">
+      <h3 className="text-[#FFEB3B] font-bold mb-3 flex items-center space-x-2 uppercase text-[10px] tracking-widest">
+        <AlertCircle className="w-3.5 h-3.5" />
+        <span>Painel de Diagnóstico</span>
+      </h3>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-1">
+          <p><span className="text-slate-500">Linha Header (Export):</span> {diagnostics.headerRow}</p>
+          <p><span className="text-slate-500">Registos Export:</span> {diagnostics.exportRows}</p>
+          <p><span className="text-slate-500">Registos Firmas:</span> {diagnostics.firmsRows}</p>
+          <div className="flex space-x-4 mt-2">
+            <p>
+              <span className="text-slate-500">jsPDF:</span>{' '}
+              {diagnostics.libHealth.jspdf ? <span className="text-emerald-400">OK</span> : <span className="text-red-400">ERRO</span>}
+            </p>
+            <p>
+              <span className="text-slate-500">AutoTable:</span>{' '}
+              {diagnostics.libHealth.autotable ? <span className="text-emerald-400">OK</span> : <span className="text-red-400">ERRO</span>}
+            </p>
+          </div>
+        </div>
+
+        <div className="space-y-1">
+          <p className="text-slate-500">Colunas Detetadas:</p>
+          <div className="flex flex-wrap gap-1 mt-1 mb-3">
+            {diagnostics.columns.map((c, i) => (
+              <span key={i} className="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-700 text-[10px]">
+                {c}
+              </span>
+            ))}
+          </div>
+
+          {diagnostics.amountSamples.length > 0 && (
+            <div className="mt-4 p-3 bg-slate-800/50 rounded-xl border border-slate-700">
+              <p className="text-indigo-400 font-bold mb-2 uppercase text-[10px]">Amostras de Montantes (Parse)</p>
+              <div className="space-y-1 text-[10px]">
+                {diagnostics.amountSamples.map((s, i) => (
+                  <div key={i} className="flex justify-between border-b border-slate-700 pb-1 last:border-0">
+                    <span className="text-slate-400">Original: "{String(s.raw)}"</span>
+                    <span className="text-emerald-400">Parsed: {s.parsed.toFixed(2)}</span>
                   </div>
-                  <div className="space-y-1">
-                    <p className="text-slate-500">Colunas Detetadas:</p>
-                    <div className="flex flex-wrap gap-1 mt-1 mb-3">
-                      {diagnostics.columns.map((c, i) => (
-                        <span key={i} className="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-700 text-[10px]">{c}</span>
-                      ))}
-                    </div>
-                    {diagnostics.amountSamples.length > 0 && (
-                      <div className="mt-4 p-3 bg-slate-800/50 rounded-xl border border-slate-700">
-                        <p className="text-indigo-400 font-bold mb-2 uppercase text-[10px]">Amostras de Montantes (Parse)</p>
-                        <div className="space-y-1 text-[10px]">
-                          {diagnostics.amountSamples.map((s, i) => (
-                            <div key={i} className="flex justify-between border-b border-slate-700 pb-1 last:border-0">
-                              <span className="text-slate-400">Original: "{String(s.raw)}"</span>
-                              <span className="text-emerald-400">Parsed: {s.parsed.toFixed(2)}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
+                ))}
               </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  </div>
+  )}
+</div>
 
               {stats.unmappedCount > 0 && (
                 <div className="bg-orange-50 border border-orange-200 rounded-2xl p-6 mb-8">
