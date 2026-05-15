@@ -1,6 +1,6 @@
 # Transportes | PDF & Email (SAP Interface Edition)
 
-**Site (GitHub Pages):** https://djpedrog.github.io/Transporte-PDF-Email/
+**Site (GitHub Pages):** https://github.com/SumolCompalAFSN/Transporte-PDF-Email
 
 Aplicação web (processamento local no browser) para gerar **PDFs de documentos em aberto** por transportista a partir do `EXPORT_TRANSPORTES.xlsx` e preparar **rascunhos de email (.EML)** com o PDF em anexo, usando a base `FirmasTransportes_Emails.xlsx`.
 
