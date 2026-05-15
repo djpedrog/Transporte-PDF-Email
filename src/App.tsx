@@ -31,6 +31,53 @@ import {
 } from './services';
 
 type Tab = 'upload' | 'preview' | 'processing' | 'summary';
+type Variant = 'ALL' | 'CENTER';
+
+type WorkItem = {
+  entryId: string;       // único (ex.: 92000923__ALL / 92000923__1090)
+  cod: string;           // cliente real (ex.: 92000923)
+  variant: Variant;      // ALL ou CENTER
+  centerToken?: string;  // ex.: "1090/" (com barra)
+  label?: string;        // ex.: "1090" (sem barra) para nomes/assunto
+};
+
+const SPLIT_RULES: Record<string, string[]> = {
+  '92000923': ['1090/', '1330/'],
+  '92000112': ['1020/', '1010/'],
+};
+
+function centerLabel(token: string) {
+  // "1090/" -> "1090"
+  return token.endsWith('/') ? token.slice(0, -1) : token;
+}
+
+function buildWorkItemsForClient(cod: string, records: TransportRecord[]): WorkItem[] {
+  const items: WorkItem[] = [];
+
+  // 1) Sempre ALL
+  items.push({
+    entryId: `${cod}__ALL`,
+    cod,
+    variant: 'ALL',
+  });
+
+  // 2) Se existir regra para este cliente, criar itens por centro (apenas se houver linhas)
+  const ruleTokens = SPLIT_RULES[cod] || [];
+  for (const token of ruleTokens) {
+    const hasAny = records.some(r => String(r.Referência || '').includes(token));
+    if (!hasAny) continue;
+
+    items.push({
+      entryId: `${cod}__${centerLabel(token)}`,
+      cod,
+      variant: 'CENTER',
+      centerToken: token,
+      label: centerLabel(token),
+    });
+  }
+
+  return items;
+}
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<Tab>('upload');
@@ -62,10 +109,10 @@ export default function App() {
   const [progress, setProgress] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
   const [results, setResults] = useState<{
-    pdfs: { cod: string; name: string; blob: Blob }[];
-    emls: { cod: string; name: string; blob: Blob }[];
-    unmapped: string[];
-  }>({ pdfs: [], emls: [], unmapped: [] });
+  pdfs: { entryId: string; cod: string; name: string; blob: Blob; variantLabel?: string }[];
+  emls: { entryId: string; cod: string; name: string; blob: Blob; variantLabel?: string }[];
+  unmapped: string[];
+}>({ pdfs: [], emls: [], unmapped: [] });
 
   const [sentEmails, setSentEmails] = useState<Record<string, boolean>>({});
   const [showTechDetails, setShowTechDetails] = useState(false);
@@ -82,20 +129,20 @@ export default function App() {
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
         if (key && key.startsWith('emailSent_')) {
-          const cod = key.replace('emailSent_', '');
-          saved[cod] = true;
-        }
+  const entryId = key.replace('emailSent_', '');
+  saved[entryId] = true;
+}
     }
     setSentEmails(saved);
   }, []);
 
-  const toggleEmailSent = (cod: string) => {
-    const isSent = sentEmails[cod];
-    if (!isSent) {
-      localStorage.setItem(`emailSent_${cod}`, '1');
-      setSentEmails(prev => ({ ...prev, [cod]: true }));
-    }
-  };
+ const toggleEmailSent = (entryId: string) => {
+  const isSent = sentEmails[entryId];
+  if (!isSent) {
+    localStorage.setItem(`emailSent_${entryId}`, '1');
+    setSentEmails(prev => ({ ...prev, [entryId]: true }));
+  }
+};
 
   const resetSentEmails = () => {
     const keysToRemove: string[] = [];
@@ -267,6 +314,39 @@ export default function App() {
     };
   }, [transportData, firmsData]);
 
+  function getKeyRef3(r: TransportRecord): string {
+  // No teu parse já guardas 'Chave referência 3' normalizada.
+  // Mas aqui mantemos seguro (string + trim).
+  return String((r as any)['Chave referência 3'] ?? '').trim();
+}
+
+function buildRecordsForItem(item: any, recordsAll: TransportRecord[]): TransportRecord[] {
+  // ALL: devolve tudo
+  if (item.variant !== 'CENTER' || !item.centerToken) return recordsAll;
+
+  const token = item.centerToken;
+
+  // 1) linhas do centro (seed)
+  const seed = recordsAll.filter(r => String((r as any).Referência || '').includes(token));
+
+  // Se não há seed, devolve vazio (idealmente nem criávamos este item)
+  if (seed.length === 0) return [];
+
+  // 2) chaves referência 3 das seed (só as não vazias)
+  const keySet = new Set(seed.map(getKeyRef3).filter(k => k !== ''));
+
+  // 3) incluir:
+  // - as do centro
+  // - e as que partilham chave referência 3 com as do centro
+  return recordsAll.filter(r => {
+    const ref = String((r as any).Referência || '');
+    if (ref.includes(token)) return true;
+
+    const k = getKeyRef3(r);
+    return k !== '' && keySet.has(k);
+  });
+}
+  
   const processEverything = async () => {
     setIsProcessing(true);
     setActiveTab('processing');
@@ -279,49 +359,93 @@ export default function App() {
     const generatedEmls: typeof results.emls = [];
     const unmappedCods: string[] = [];
 
-    const clients = Array.from(new Set(transportData.map(r => normalizeKey(r.Cliente)).filter(c => c !== '')));
-    const total = clients.length;
+    const clientCods = Array.from(new Set(transportData.map(r => normalizeKey(r.Cliente)).filter(c => c !== '')));
+const totalClients = clientCods.length;
 
-    for (let i = 0; i < total; i++) {
-      const cod = clients[i];
-      const firm = firmsData.find(f => normalizeKey(f.Cod) === cod);
-      const records = transportData.filter(r => normalizeKey(r.Cliente) === cod);
+// Vamos gerar uma lista de work-items (ALL + centros aplicáveis)
+const workItems: WorkItem[] = [];
+for (const cod of clientCods) {
+  const recordsAll = transportData.filter(r => normalizeKey(r.Cliente) === cod);
+  workItems.push(...buildWorkItemsForClient(cod, recordsAll));
+}
 
-      if (!firm) {
-        addLog(`[AVISO] Cod ${cod} não encontrado na base de dados de firmas.`);
-        unmappedCods.push(cod);
-        setErrors(prev => [...prev, { type: 'MAP_MISSING', message: `Cliente ${cod} sem correspondência na base de dados.`, cod }]);
-        
-        const fakeFirm: FirmRecord = { Cod: cod, Nome: '(Desconhecido)' };
-        try {
-          const pdfBlob = await generateTransportPdf(cod, fakeFirm, records);
-          const pdfName = cleanFilename(`Relatório Transp. Aberto ${cod} Desconhecido.pdf`);
-          generatedPdfs.push({ cod, name: pdfName, blob: pdfBlob });
-        } catch (e: any) {
-          setErrors(prev => [...prev, { type: 'MIXING_DETECTED', message: e.message, cod }]);
-        }
-      } else {
-        try {
-          const pdfBlob = await generateTransportPdf(cod, firm, records);
-          const pdfName = cleanFilename(`Relatório Transp. Aberto ${firm.Cod} ${firm.Nome}.pdf`);
-          generatedPdfs.push({ cod, name: pdfName, blob: pdfBlob });
+const total = workItems.length;
 
-          if (normalizeKey(firm.Cod) !== cod) {
-             throw new Error(`Sanity check falhou: tentativa de anexar PDF do cod ${cod} ao email do cod ${firm.Cod}`);
-          }
+   for (let i = 0; i < total; i++) {
+  const item = workItems[i];
+  const cod = item.cod;
 
-          const emlBlob = await generateEml(firm, pdfBlob, pdfName);
-          const emlName = cleanFilename(`Email Draft ${firm.Cod} ${firm.Nome}.eml`);
-          generatedEmls.push({ cod, name: emlName, blob: emlBlob });
-          
-          addLog(`Processado: ${cod} - ${firm.Nome}`);
-        } catch (e: any) {
-          addLog(`[ERRO] Falha no processamento de ${cod}: ${e.message}`);
-          setErrors(prev => [...prev, { type: 'MIXING_DETECTED', message: e.message, cod }]);
-        }
-      }
-      setProgress(Math.round(((i + 1) / total) * 100));
+  const firm = firmsData.find(f => normalizeKey(f.Cod) === cod);
+  const recordsAll = transportData.filter(r => normalizeKey(r.Cliente) === cod);
+  const records = buildRecordsForItem(item, recordsAll);
+     
+
+  // Identificador adicional para distinguir ALL vs centro
+  const suffix = item.variant === 'CENTER' && item.label ? ` - ${item.label}` : '';
+  const variantLabel = item.variant === 'CENTER' && item.centerToken ? item.centerToken : undefined;
+
+  if (!firm) {
+    addLog(`[AVISO] Cod ${cod} não encontrado na base de dados de firmas.`);
+    unmappedCods.push(cod);
+    setErrors(prev => [...prev, { type: 'MAP_MISSING', message: `Cliente ${cod} sem correspondência na base de dados.`, cod }]);
+
+    const fakeFirm: FirmRecord = { Cod: cod, Nome: '(Desconhecido)' };
+
+    try {
+      const pdfBlob = await generateTransportPdf(cod, fakeFirm, records);
+      const pdfName = cleanFilename(`Relatório Transp. Aberto ${cod} Desconhecido${suffix}.pdf`);
+
+      generatedPdfs.push({
+        entryId: item.entryId,
+        cod,
+        name: pdfName,
+        blob: pdfBlob,
+        variantLabel
+      });
+
+      // Não gera EML quando não existe firm
+    } catch (e: any) {
+      setErrors(prev => [...prev, { type: 'MIXING_DETECTED', message: e.message, cod }]);
     }
+
+  } else {
+    try {
+      const pdfBlob = await generateTransportPdf(cod, firm, records);
+
+      const pdfName = cleanFilename(`Relatório Transp. Aberto ${firm.Cod} ${firm.Nome}${suffix}.pdf`);
+      generatedPdfs.push({
+        entryId: item.entryId,
+        cod,
+        name: pdfName,
+        blob: pdfBlob,
+        variantLabel
+      });
+
+      if (normalizeKey(firm.Cod) !== cod) {
+        throw new Error(`Sanity check falhou: tentativa de anexar PDF do cod ${cod} ao email do cod ${firm.Cod}`);
+      }
+
+      const emlBlob = await generateEml(firm, pdfBlob, pdfName);
+      const emlName = cleanFilename(`Email Draft ${firm.Cod} ${firm.Nome}${suffix}.eml`);
+
+      generatedEmls.push({
+        entryId: item.entryId,
+        cod,
+        name: emlName,
+        blob: emlBlob,
+        variantLabel
+      });
+
+      addLog(`Processado: ${cod} - ${firm.Nome}${suffix}`);
+    } catch (e: any) {
+      addLog(`[ERRO] Falha no processamento de ${cod}${suffix}: ${e.message}`);
+      setErrors(prev => [...prev, { type: 'MIXING_DETECTED', message: e.message, cod }]);
+    }
+  }
+
+  // progresso dentro do loop
+  setProgress(Math.round(((i + 1) / total) * 100));
+} // ✅ FECHO do FOR
 
     setResults({ pdfs: generatedPdfs, emls: generatedEmls, unmapped: unmappedCods });
     setIsProcessing(false);
@@ -345,11 +469,11 @@ export default function App() {
     navigator.clipboard.writeText(text);
   };
   // Exportar apenas o PDF correspondente ao cod (Transportista)
-const downloadSinglePdf = (cod: string) => {
-  const pdf = results.pdfs.find(p => p.cod === cod);
+const downloadSinglePdf = (entryId: string) => {
+  const pdf = results.pdfs.find(p => p.entryId === entryId);
 
   if (!pdf) {
-    alert('PDF não encontrado para este código. Confirma se já foi processado.');
+    alert('PDF não encontrado para esta entrada. Confirma se já foi processado.');
     return;
   }
 
@@ -361,7 +485,6 @@ const downloadSinglePdf = (cod: string) => {
   a.click();
   a.remove();
 
-  // evita leaks
   setTimeout(() => URL.revokeObjectURL(url), 0);
 };
 
@@ -794,15 +917,20 @@ const downloadSinglePdf = (cod: string) => {
                       
                       const mailtoBody = `Exmos. ${firm.Nome}\n\nSegue em anexo ficheiro com os documentos em aberto à data de ${today}\nEstamos disponíveis para qualquer esclarecimento adicional que considerem relevante.\n\nAtentamente\nA equipa AFSN\n\nEm caso de dúvidas contactar faturacao@sumolcompal.pt`;
                       const mailtoUrl = `mailto:${to}?cc=${cc}&subject=${encodeURIComponent(`Relatório de PA´s em aberto de ${firm.Nome}`)}&body=${encodeURIComponent(mailtoBody)}`;
-                      const isSent = sentEmails[eml.cod] === true;
+                      const isSent = sentEmails[eml.entryId] === true;
 
                       return (
-                        <div key={i} className="sap-table-row p-3 hover:bg-[#EAF2FF] transition-all group">
+                        <div key={eml.entryId} className="sap-table-row p-3 hover:bg-[#EAF2FF] transition-all group">
                           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                             <div className="flex-1">
                               <div className="flex items-center space-x-2 mb-0.5">
                                 <span className={`font-bold text-[13px] transition-colors ${isSent ? 'text-slate-400' : 'text-[#1B1F23]'}`}>{firm.Nome}</span>
                                 <span className={`text-[11px] px-1.5 border transition-colors rounded ${isSent ? 'bg-slate-50 text-slate-400 border-slate-200' : 'bg-slate-100 text-slate-600 border-slate-300 font-mono'}`}>{firm.Cod}</span>
+                                {eml.variantLabel && (
+                                <span className="text-[11px] px-1.5 border rounded bg-slate-100 text-slate-600 border-slate-300 font-mono">
+                                {eml.variantLabel}
+                                </span>
+)}
                                 {isSent && (
   <span
     className="inline-flex items-center text-[10px] px-2 py-0.5 rounded border border-emerald-700 bg-emerald-600 text-white font-bold uppercase"
@@ -824,7 +952,7 @@ const downloadSinglePdf = (cod: string) => {
                               </a>
                               <button
   type="button"
-  onClick={() => downloadSinglePdf(eml.cod)}
+  onClick={() => downloadSinglePdf(eml.entryId)}
   title="Exportar apenas o PDF"
   className="sap-btn-secondary p-1"
 >
@@ -834,7 +962,7 @@ const downloadSinglePdf = (cod: string) => {
                               <a 
                                 href={URL.createObjectURL(eml.blob)} 
                                 download={eml.name} 
-                                onClick={() => toggleEmailSent(eml.cod)}
+                                onClick={() => toggleEmailSent(eml.entryId)}
                                 title={isSent ? "Reabrir Rascunho" : "Gerar .EML com Anexo"} 
                                 className={`sap-btn-primary px-3 space-x-1.5 transition-all ${isSent ? 'btn-sent opacity-90' : ''}`}
                               >
