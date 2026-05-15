@@ -278,7 +278,8 @@ export async function generateTransportPdf(
 export function generateEml(
   firm: FirmRecord,
   pdfBlob: Blob,
-  pdfName: string
+  pdfName: string,
+  subjectSuffix?: string
 ): Promise<Blob> {
   const to = [firm.Para1, firm.Para2, firm.Para3, firm.Para4, firm.Para5]
     .filter(e => e && e.trim() !== '')
@@ -291,7 +292,8 @@ export function generateEml(
   const now = new Date();
   const dateFormatted = now.toUTCString();
   const today = formatDateDDMMYYYY(now);
-  const subject = `Relatório de PA´s em aberto de ${firm.Nome}`;
+  const suffix = subjectSuffix ? ` (${subjectSuffix})` : '';
+  const subject = `Relatório de PA´s em aberto de ${firm.Nome}${suffix}`;
   
   const bodyText = `Exmos. ${firm.Nome}\r\n\r\nSegue em anexo ficheiro com os documentos em aberto à data de ${today}\r\nEstamos disponíveis para qualquer esclarecimento adicional que considerem relevante.\r\n\r\nAtentamente\r\nA equipa AFSN\r\n\r\nEm caso de dúvidas contactar faturacao@sumolcompal.pt`;
   
