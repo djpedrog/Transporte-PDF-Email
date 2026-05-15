@@ -921,7 +921,9 @@ const downloadSinglePdf = (entryId: string) => {
                       const today = new Intl.DateTimeFormat('pt-PT').format(new Date());
                       
                       const mailtoBody = `Exmos. ${firm.Nome}\n\nSegue em anexo ficheiro com os documentos em aberto à data de ${today}\nEstamos disponíveis para qualquer esclarecimento adicional que considerem relevante.\n\nAtentamente\nA equipa AFSN\n\nEm caso de dúvidas contactar faturacao@sumolcompal.pt`;
-                      const mailtoUrl = `mailto:${to}?cc=${cc}&subject=${encodeURIComponent(`Relatório de PA´s em aberto de ${firm.Nome}`)}&body=${encodeURIComponent(mailtoBody)}`;
+                      const subjSuffix = eml.variantLabel ? ` (${String(eml.variantLabel).replace(/\/$/, '')})` : '';
+                      const mailSubject = `Relatório de PA´s em aberto de ${firm.Nome}${subjSuffix}`;
+                      const mailtoUrl = `mailto:${to}?cc=${cc}&subject=${encodeURIComponent(mailSubject)}&body=${encodeURIComponent(mailtoBody)}`;
                       const isSent = sentEmails[eml.entryId] === true;
 
                       return (
