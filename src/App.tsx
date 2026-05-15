@@ -378,12 +378,7 @@ const total = workItems.length;
   const firm = firmsData.find(f => normalizeKey(f.Cod) === cod);
   const recordsAll = transportData.filter(r => normalizeKey(r.Cliente) === cod);
   const records = buildRecordsForItem(item, recordsAll);
-
-  // Filtrar por centro (se aplicável)
-  const records =
-    item.variant === 'CENTER' && item.centerToken
-      ? recordsAll.filter(r => String(r.Referência || '').includes(item.centerToken!))
-      : recordsAll;
+     
 
   // Identificador adicional para distinguir ALL vs centro
   const suffix = item.variant === 'CENTER' && item.label ? ` - ${item.label}` : '';
