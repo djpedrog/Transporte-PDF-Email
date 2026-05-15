@@ -109,10 +109,10 @@ export default function App() {
   const [progress, setProgress] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
   const [results, setResults] = useState<{
-    pdfs: { cod: string; name: string; blob: Blob }[];
-    emls: { cod: string; name: string; blob: Blob }[];
-    unmapped: string[];
-  }>({ pdfs: [], emls: [], unmapped: [] });
+  pdfs: { entryId: string; cod: string; name: string; blob: Blob; variantLabel?: string }[];
+  emls: { entryId: string; cod: string; name: string; blob: Blob; variantLabel?: string }[];
+  unmapped: string[];
+}>({ pdfs;
 
   const [sentEmails, setSentEmails] = useState<Record<string, boolean>>({});
   const [showTechDetails, setShowTechDetails] = useState(false);
@@ -326,13 +326,30 @@ export default function App() {
     const generatedEmls: typeof results.emls = [];
     const unmappedCods: string[] = [];
 
-    const clients = Array.from(new Set(transportData.map(r => normalizeKey(r.Cliente)).filter(c => c !== '')));
+    const clientCods = Array.from(new Set(transportData.map(r => normalizeKey(r.Cliente)).filter(c => c !== '')));
+const totalClients = clientCods.length;
+
+// Vamos gerar uma lista de work-items (ALL + centros aplicáveis)
+const workItems: WorkItem[] = [];
+for (const cod of clientCods) {
+  const recordsAll = transportData.filter(r => normalizeKey(r.Cliente) === cod);
+  workItems.push(...buildWorkItemsForClient(cod, recordsAll));
+}
+
+const total = workItems.length;
     const total = clients.length;
 
     for (let i = 0; i < total; i++) {
-      const cod = clients[i];
-      const firm = firmsData.find(f => normalizeKey(f.Cod) === cod);
-      const records = transportData.filter(r => normalizeKey(r.Cliente) === cod);
+  const item = workItems[i];
+  const cod = item.cod;
+
+  const firm = firmsData.find(f => normalizeKey(f.Cod) === cod);
+  const recordsAll = transportData.filter(r => normalizeKey(r.Cliente) === cod);
+
+  // Filtrar por centro (se aplicável)
+  const records = item.variant === 'CENTER' && item.centerToken
+    ? recordsAll.filter(r => String(r.Referência || '').includes(item.centerToken!))
+    : recordsAll;
 
       if (!firm) {
         addLog(`[AVISO] Cod ${cod} não encontrado na base de dados de firmas.`);
