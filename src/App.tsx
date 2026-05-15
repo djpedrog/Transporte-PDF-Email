@@ -337,9 +337,8 @@ for (const cod of clientCods) {
 }
 
 const total = workItems.length;
-    const total = clients.length;
 
-    for (let i = 0; i < total; i++) {
+   for (let i = 0; i < total; i++) {
   const item = workItems[i];
   const cod = item.cod;
 
@@ -347,75 +346,77 @@ const total = workItems.length;
   const recordsAll = transportData.filter(r => normalizeKey(r.Cliente) === cod);
 
   // Filtrar por centro (se aplicável)
-  const records = item.variant === 'CENTER' && item.centerToken
-    ? recordsAll.filter(r => String(r.Referência || '').includes(item.centerToken!))
-    : recordsAll;
+  const records =
+    item.variant === 'CENTER' && item.centerToken
+      ? recordsAll.filter(r => String(r.Referência || '').includes(item.centerToken!))
+      : recordsAll;
 
-      // Identificador adicional para distinguir ALL vs centro
-const suffix = item.variant === 'CENTER' && item.label ? ` - ${item.label}` : '';
-const variantLabel = item.variant === 'CENTER' && item.centerToken ? item.centerToken : undefined;
+  // Identificador adicional para distinguir ALL vs centro
+  const suffix = item.variant === 'CENTER' && item.label ? ` - ${item.label}` : '';
+  const variantLabel = item.variant === 'CENTER' && item.centerToken ? item.centerToken : undefined;
 
-if (!firm) {
-  addLog(`[AVISO] Cod ${cod} não encontrado na base de dados de firmas.`);
-  unmappedCods.push(cod);
-  setErrors(prev => [...prev, { type: 'MAP_MISSING', message: `Cliente ${cod} sem correspondência na base de dados.`, cod }]);
+  if (!firm) {
+    addLog(`[AVISO] Cod ${cod} não encontrado na base de dados de firmas.`);
+    unmappedCods.push(cod);
+    setErrors(prev => [...prev, { type: 'MAP_MISSING', message: `Cliente ${cod} sem correspondência na base de dados.`, cod }]);
 
-  const fakeFirm: FirmRecord = { Cod: cod, Nome: '(Desconhecido)' };
+    const fakeFirm: FirmRecord = { Cod: cod, Nome: '(Desconhecido)' };
 
-  try {
-    const pdfBlob = await generateTransportPdf(cod, fakeFirm, records);
-    const pdfName = cleanFilename(`Relatório Transp. Aberto ${cod} Desconhecido${suffix}.pdf`);
+    try {
+      const pdfBlob = await generateTransportPdf(cod, fakeFirm, records);
+      const pdfName = cleanFilename(`Relatório Transp. Aberto ${cod} Desconhecido${suffix}.pdf`);
 
-    generatedPdfs.push({
-      entryId: item.entryId,
-      cod,
-      name: pdfName,
-      blob: pdfBlob,
-      variantLabel
-    });
+      generatedPdfs.push({
+        entryId: item.entryId,
+        cod,
+        name: pdfName,
+        blob: pdfBlob,
+        variantLabel
+      });
 
-    // Não gera EML quando não existe firm (não há destinatários)
-  } catch (e: any) {
-    setErrors(prev => [...prev, { type: 'MIXING_DETECTED', message: e.message, cod }]);
-  }
-
-} else {
-  try {
-    const pdfBlob = await generateTransportPdf(cod, firm, records);
-
-    const pdfName = cleanFilename(`Relatório Transp. Aberto ${firm.Cod} ${firm.Nome}${suffix}.pdf`);
-    generatedPdfs.push({
-      entryId: item.entryId,
-      cod,
-      name: pdfName,
-      blob: pdfBlob,
-      variantLabel
-    });
-
-    if (normalizeKey(firm.Cod) !== cod) {
-      throw new Error(`Sanity check falhou: tentativa de anexar PDF do cod ${cod} ao email do cod ${firm.Cod}`);
+      // Não gera EML quando não existe firm
+    } catch (e: any) {
+      setErrors(prev => [...prev, { type: 'MIXING_DETECTED', message: e.message, cod }]);
     }
 
-    // (Commit 4) depois vamos passar também o identificador para o assunto do email
-    const emlBlob = await generateEml(firm, pdfBlob, pdfName);
+  } else {
+    try {
+      const pdfBlob = await generateTransportPdf(cod, firm, records);
 
-    const emlName = cleanFilename(`Email Draft ${firm.Cod} ${firm.Nome}${suffix}.eml`);
-    generatedEmls.push({
-      entryId: item.entryId,
-      cod,
-      name: emlName,
-      blob: emlBlob,
-      variantLabel
-    });
+      const pdfName = cleanFilename(`Relatório Transp. Aberto ${firm.Cod} ${firm.Nome}${suffix}.pdf`);
+      generatedPdfs.push({
+        entryId: item.entryId,
+        cod,
+        name: pdfName,
+        blob: pdfBlob,
+        variantLabel
+      });
 
-    addLog(`Processado: ${cod} - ${firm.Nome}${suffix}`);
-  } catch (e: any) {
-    addLog(`[ERRO] Falha no processamento de ${cod}${suffix}: ${e.message}`);
-    setErrors(prev => [...prev, { type: 'MIXING_DETECTED', message: e.message, cod }]);
+      if (normalizeKey(firm.Cod) !== cod) {
+        throw new Error(`Sanity check falhou: tentativa de anexar PDF do cod ${cod} ao email do cod ${firm.Cod}`);
+      }
+
+      const emlBlob = await generateEml(firm, pdfBlob, pdfName);
+      const emlName = cleanFilename(`Email Draft ${firm.Cod} ${firm.Nome}${suffix}.eml`);
+
+      generatedEmls.push({
+        entryId: item.entryId,
+        cod,
+        name: emlName,
+        blob: emlBlob,
+        variantLabel
+      });
+
+      addLog(`Processado: ${cod} - ${firm.Nome}${suffix}`);
+    } catch (e: any) {
+      addLog(`[ERRO] Falha no processamento de ${cod}${suffix}: ${e.message}`);
+      setErrors(prev => [...prev, { type: 'MIXING_DETECTED', message: e.message, cod }]);
+    }
   }
-}
 
-setProgress(Math.round(((i + 1) / total) * 100));
+  // progresso dentro do loop
+  setProgress(Math.round(((i + 1) / total) * 100));
+} // ✅ FECHO do FOR
 
     setResults({ pdfs: generatedPdfs, emls: generatedEmls, unmapped: unmappedCods });
     setIsProcessing(false);
