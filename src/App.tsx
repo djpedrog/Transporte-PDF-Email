@@ -970,3 +970,4 @@ const downloadSinglePdf = (entryId: string) => {
       </footer>
     </div>
   );
+}
