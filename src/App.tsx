@@ -506,8 +506,8 @@ const downloadSinglePdf = (entryId: string) => {
           </div>
         </div>
         <div className="hidden sm:block text-right">
-          <p className="text-[11px] text-slate-500">Versão 3.5.0</p>
-          <p className="text-[10px] text-slate-400">© 2026 SumolCompal</p>
+          <p className="text-[11px] text-slate-500">Versão 3.6.0</p>
+          <p className="text-[10px] text-slate-400">© 2026 Sumol+Compal</p>
         </div>
       </header>
 
