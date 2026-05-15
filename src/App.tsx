@@ -68,6 +68,7 @@ export default function App() {
   }>({ pdfs: [], emls: [], unmapped: [] });
 
   const [sentEmails, setSentEmails] = useState<Record<string, boolean>>({});
+  const [showTechDetails, setShowTechDetails] = useState(false);
 
   const addLog = (msg: string) => setLogs(prev => [...prev, `${new Date().toLocaleTimeString()} - ${msg}`]);
 
