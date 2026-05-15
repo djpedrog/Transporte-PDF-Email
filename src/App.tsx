@@ -613,7 +613,7 @@ const downloadSinglePdf = (cod: string) => {
 
   {/* Detalhes técnicos: COLA AQUI O PAINEL ANTIGO (o preto) */}
  {showTechDetails && (
-  <div className="bg-[#1B1F23] text-slate-300 font-mono text-[11px] border-t border-black p-4">
+  <div className="bg-[#1B1F23] text-slate-300 font-mono text-[11px] border-t border-slate-700 p-3">
     <div className="rounded border border-slate-700 bg-transparent p-4">
       <h3 className="text-[#FFEB3B] font-bold mb-3 flex items-center space-x-2 uppercase text-[10px] tracking-widest">
         <AlertCircle className="w-3.5 h-3.5" />
