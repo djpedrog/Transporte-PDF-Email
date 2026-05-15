@@ -31,6 +31,53 @@ import {
 } from './services';
 
 type Tab = 'upload' | 'preview' | 'processing' | 'summary';
+type Variant = 'ALL' | 'CENTER';
+
+type WorkItem = {
+  entryId: string;       // único (ex.: 92000923__ALL / 92000923__1090)
+  cod: string;           // cliente real (ex.: 92000923)
+  variant: Variant;      // ALL ou CENTER
+  centerToken?: string;  // ex.: "1090/" (com barra)
+  label?: string;        // ex.: "1090" (sem barra) para nomes/assunto
+};
+
+const SPLIT_RULES: Record<string, string[]> = {
+  '92000923': ['1090/', '1330/'],
+  '92000112': ['1020/', '1010/'],
+};
+
+function centerLabel(token: string) {
+  // "1090/" -> "1090"
+  return token.endsWith('/') ? token.slice(0, -1) : token;
+}
+
+function buildWorkItemsForClient(cod: string, records: TransportRecord[]): WorkItem[] {
+  const items: WorkItem[] = [];
+
+  // 1) Sempre ALL
+  items.push({
+    entryId: `${cod}__ALL`,
+    cod,
+    variant: 'ALL',
+  });
+
+  // 2) Se existir regra para este cliente, criar itens por centro (apenas se houver linhas)
+  const ruleTokens = SPLIT_RULES[cod] || [];
+  for (const token of ruleTokens) {
+    const hasAny = records.some(r => String(r.Referência || '').includes(token));
+    if (!hasAny) continue;
+
+    items.push({
+      entryId: `${cod}__${centerLabel(token)}`,
+      cod,
+      variant: 'CENTER',
+      centerToken: token,
+      label: centerLabel(token),
+    });
+  }
+
+  return items;
+}
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<Tab>('upload');
