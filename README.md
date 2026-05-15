@@ -1,5 +1,7 @@
 # Transportes | PDF & Email (SAP Interface Edition)
 
+**Site (GitHub Pages):** https://djpedrog.github.io/Transporte-PDF-Email/
+
 Aplicação web (processamento local no browser) para gerar **PDFs de documentos em aberto** por transportista a partir do `EXPORT_TRANSPORTES.xlsx` e preparar **rascunhos de email (.EML)** com o PDF em anexo, usando a base `FirmasTransportes_Emails.xlsx`.
 
 ## Como usar
@@ -10,8 +12,8 @@ Aplicação web (processamento local no browser) para gerar **PDFs de documentos
 3. Clicar **PROCESSAR TUDO**
 4. No **Resumo**:
    - **PDF**: descarrega apenas o PDF dessa entrada
-   - **Enviar E-mail**: descarrega o `.EML` com PDF anexado (abrir no Outlook e clicar **Enviar**)
-   - **ZIP Completo**: descarrega PDFs + EMLs
+   - **Enviar E-mail**: descarrega o `.EML` com PDF anexado (abre no Outlook Web e clica **Enviar**)
+   - **ZIP Completo**: descarrega PDFs + EMLs separados por pastas
 
 ## Entradas e separação por centros
 Alguns transportistas geram entradas adicionais por “centro” (detetado na coluna **Referência**), mantendo também a versão **ALL** (tudo junto):
@@ -38,4 +40,3 @@ Existe botão **Limpar Histórico de Envio** no Resumo.
 ## Privacidade / Boas práticas
 Não versionar dados reais no repositório (Excels, PDFs, EMLs, ZIPs).
 
-Sugestão de `.gitignore`:
