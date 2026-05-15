@@ -425,7 +425,12 @@ const total = workItems.length;
         throw new Error(`Sanity check falhou: tentativa de anexar PDF do cod ${cod} ao email do cod ${firm.Cod}`);
       }
 
-      const emlBlob = await generateEml(firm, pdfBlob, pdfName);
+      const emlBlob = await generateEml(
+        firm,
+        pdfBlob,
+        pdfName,
+        item.variant === 'CENTER' && item.label ? item.label : undefined
+      );
       const emlName = cleanFilename(`Email Draft ${firm.Cod} ${firm.Nome}${suffix}.eml`);
 
       generatedEmls.push({
