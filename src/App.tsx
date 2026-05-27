@@ -538,10 +538,12 @@ const downloadSinglePdf = (entryId: string) => {
             onClick={() => (activeTab === 'summary' || activeTab === 'preview' || tab.id === 'upload') && setActiveTab(tab.id as Tab)}
             disabled={(tab.id === 'processing' && !isProcessing) || (tab.id === 'summary' && results.pdfs.length === 0)}
             className={`
-              flex-1 flex items-center justify-center space-x-2 px-3 py-1.5 text-xs font-semibold transition-all
-              ${activeTab === tab.id ? 'bg-[#2F5F8F] text-white' : 'text-[#4B5563] hover:bg-[#EAF2FF]'}
-              disabled:opacity-40 disabled:cursor-not-allowed border-r border-slate-200 last:border-r-0
-            `}
+  flex-1 flex items-center justify-center space-x-2 px-3 py-2 text-xs font-semibold transition-all
+  ${activeTab === tab.id
+    ? 'bg-[#0A6ED1] text-white border-b-2 border-[#0854A0]'
+    : 'text-slate-600 hover:bg-slate-100'}
+  disabled:opacity-40 disabled:cursor-not-allowed
+`}
           >
             <tab.icon className="w-3.5 h-3.5" />
             <span>{tab.label}</span>
@@ -595,7 +597,7 @@ const downloadSinglePdf = (entryId: string) => {
                 <button
                   onClick={parseExcels}
                   disabled={!exportFile || !firmsFile || isParsing}
-                  className="sap-btn-primary px-10 shadow-sm"
+                  className="bg-[#0A6ED1] hover:bg-[#0854A0] text-white text-sm font-semibold px-6 py-2 rounded-sm transition flex items-center gap-2 active:scale-[0.98]"
                 >
                   {isParsing ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <ChevronRight className="w-4 h-4 mr-2" />}
                   <span>Carregar Ficheiros</span>
@@ -615,21 +617,21 @@ const downloadSinglePdf = (entryId: string) => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-slate-300 border border-slate-300 mb-6 overflow-hidden rounded">
                 <div className="p-4 bg-white">
                   <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Total Registos</p>
-                  <p className="text-2xl font-bold text-[#2F5F8F]">{stats.totalRows}</p>
+                  <p className="text-xl font-semiboldtext-[#2F5F8F]">{stats.totalRows}</p>
                 </div>
                 <div className="p-4 bg-white">
                   <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Transportistas</p>
-                  <p className="text-2xl font-bold text-[#2F5F8F]">{stats.uniqueClients}</p>
+                  <p className="text-xl font-semiboldtext-[#2F5F8F]">{stats.uniqueClients}</p>
                 </div>
                 <div className="p-4 bg-white">
                   <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Sem Contacto</p>
-                  <p className="text-2xl font-bold text-[#B00020]">{stats.unmappedCount}</p>
+                  <p className="text-xl font-semiboldtext-[#B00020]">{stats.unmappedCount}</p>
                 </div>
               </div>
 
               <div className="border border-slate-300 rounded overflow-hidden bg-white shadow-sm mb-6">
   <div className="sap-table-header p-2 flex items-center justify-between">
-    <div className="flex items-center space-x-2">
+    <div className="flex items-center gap-2">
       <ShieldAlert className="w-3.5 h-3.5" />
       <span className="text-[11px] font-bold uppercase tracking-widest">
         Validação do Lote
@@ -654,7 +656,7 @@ const downloadSinglePdf = (entryId: string) => {
       </h4>
 
       <div className="space-y-2 text-[11px]">
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center gap-2">
           {exportFile ? (
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
           ) : (
@@ -663,7 +665,7 @@ const downloadSinglePdf = (entryId: string) => {
           <span className="text-slate-700">Export carregado</span>
         </div>
 
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center gap-2">
           {firmsFile ? (
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
           ) : (
@@ -672,7 +674,7 @@ const downloadSinglePdf = (entryId: string) => {
           <span className="text-slate-700">Base de Emails carregada</span>
         </div>
 
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center gap-2">
           {stats.totalRows > 0 ? (
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
           ) : (
@@ -683,7 +685,7 @@ const downloadSinglePdf = (entryId: string) => {
           </span>
         </div>
 
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center gap-2">
           {stats.uniqueClients > 0 ? (
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
           ) : (
@@ -694,7 +696,7 @@ const downloadSinglePdf = (entryId: string) => {
           </span>
         </div>
 
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center gap-2">
           {(diagnostics.libHealth.jspdf && diagnostics.libHealth.autotable) ? (
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
           ) : (
@@ -705,7 +707,7 @@ const downloadSinglePdf = (entryId: string) => {
           </span>
         </div>
 
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center gap-2">
           {stats.unmappedCount === 0 ? (
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
           ) : (
@@ -758,7 +760,7 @@ const downloadSinglePdf = (entryId: string) => {
  {showTechDetails && (
   <div className="bg-[#1B1F23] text-slate-300 font-mono text-[11px] border-t border-slate-700 p-3">
     <div className="rounded border border-slate-700 bg-transparent p-4">
-      <h3 className="text-[#FFEB3B] font-bold mb-3 flex items-center space-x-2 uppercase text-[10px] tracking-widest">
+      <h3 className="text-[#FFEB3B] font-bold mb-3 flex items-center gap-2 uppercase text-[10px] tracking-widest">
         <AlertCircle className="w-3.5 h-3.5" />
         <span>Painel de Diagnóstico</span>
       </h3>
@@ -811,7 +813,7 @@ const downloadSinglePdf = (entryId: string) => {
 </div>
 
               {stats.unmappedCount > 0 && (
-                <div className="bg-orange-50 border border-orange-200 rounded-2xl p-6 mb-8">
+                <div className="bg-orange-50 border border-orange-200 rounded p-6 mb-6">
                   <div className="flex items-start space-x-4">
                     <AlertCircle className="w-6 h-6 text-orange-600 flex-shrink-0 mt-1" />
                     <div>
@@ -828,10 +830,11 @@ const downloadSinglePdf = (entryId: string) => {
               )}
 
               <div className="flex justify-center space-x-3">
-                <button onClick={() => setActiveTab('upload')} className="sap-btn-secondary px-6">Voltar</button>
+                <button onClick={() => setActiveTab('upload')} className="bg-white border border-slate-300 text-slate-700 text-xs font-semibold px-4 py-2 rounded hover:bg-slate-100 transition-all">Voltar</button>
                 <button
                   onClick={processEverything}
-                  className="sap-btn-primary px-10"
+                  className="bg-[#0A6ED1] hover:bg-[#0854A0] text-white text-xs font-bold px-5 py-2 rounded shadow-sm transition-all flex items-center justify-center"
+
                 >
                   <Play className="w-4 h-4 mr-2" />
                   <span>PROCESSAR TUDO</span>
@@ -872,14 +875,14 @@ const downloadSinglePdf = (entryId: string) => {
               key="summary"
               className="p-6"
             >
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 border-b border-slate-200 pb-6">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 border-b border-slate-200 pb-6">
                 <div>
-                  <h2 className="text-xl font-bold text-[#1B1F23]">Processamento Concluído</h2>
+                  <h2 className="text-lg font-semibold tracking-tight text-[#1B1F23]">Processamento Concluído</h2>
                   <p className="text-xs text-slate-500 uppercase tracking-wide">{results.pdfs.length} Relatórios PDF Gerados | {results.emls.length} Rascunhos de Email</p>
                 </div>
                 <button
                   onClick={downloadZip}
-                  className="sap-btn-primary h-12 px-8 flex items-center space-x-2"
+                  className="bg-[#0A6ED1] hover:bg-[#0854A0] text-white text-sm font-bold px-6 py-3 rounded shadow-sm transition-all flex items-center gap-2"
                 >
                   <Download className="w-5 h-5" />
                   <span className="text-sm font-bold">BAIXAR ZIP COMPLETO</span>
@@ -889,7 +892,7 @@ const downloadSinglePdf = (entryId: string) => {
               <div className="space-y-6">
                 {errors.length > 0 && (
                   <section>
-                    <h3 className="text-[10px] font-bold text-[#B00020] uppercase tracking-widest mb-3 flex items-center space-x-2">
+                    <h3 className="text-[10px] font-bold text-[#B00020] uppercase tracking-widest mb-3 flex items-center gap-2">
                        <ShieldAlert className="w-3.5 h-3.5" />
                        <span>Relatório de Erros / Alertas</span>
                     </h3>
@@ -910,7 +913,7 @@ const downloadSinglePdf = (entryId: string) => {
                 <section>
                   <div className="flex items-center justify-between mb-3 sap-table-header p-2 rounded-t">
   <div className="flex items-center space-x-4">
-    <h3 className="text-[11px] font-bold uppercase tracking-widest flex items-center space-x-2">
+    <h3 className="text-[11px] font-bold uppercase tracking-widest flex items-center gap-2">
       <Mail className="w-3.5 h-3.5" />
       <span>Rascunhos de Email (Outlook Drafts)</span>
     </h3>
@@ -918,7 +921,7 @@ const downloadSinglePdf = (entryId: string) => {
 
   <button
     onClick={resetSentEmails}
-    className="text-[9px] text-slate-500 hover:text-red-600 transition-colors flex items-center space-x-1 border border-slate-300 bg-white px-2 py-0.5 rounded shadow-sm"
+    className="text-[9px] text-slate-500 hover:text-red-600 transition-colors flex items-center gap-2 border border-slate-300 bg-white px-2 py-0.5 rounded shadow-sm"
     title="Limpar marcações de enviado"
     type="button"
   >
@@ -945,7 +948,7 @@ const downloadSinglePdf = (entryId: string) => {
                         <div key={eml.entryId} className="sap-table-row p-3 hover:bg-[#EAF2FF] transition-all group">
                           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                             <div className="flex-1">
-                              <div className="flex items-center space-x-2 mb-0.5">
+                              <div className="flex items-center gap-2 mb-0.5">
                                 <span className={`font-bold text-[13px] transition-colors ${isSent ? 'text-slate-400' : 'text-[#1B1F23]'}`}>{firm.Nome}</span>
                                 <span className={`text-[11px] px-1.5 border transition-colors rounded ${isSent ? 'bg-slate-50 text-slate-400 border-slate-200' : 'bg-slate-100 text-slate-600 border-slate-300 font-mono'}`}>{firm.Cod}</span>
                                 {eml.variantLabel && (
@@ -965,28 +968,38 @@ const downloadSinglePdf = (entryId: string) => {
                               </div>
                               <div className="text-[11px] text-slate-500 truncate max-w-lg">Para: {to}</div>
                             </div>
-                            <div className="flex items-center space-x-1">
-                              <button onClick={() => copyToClipboard(to)} title="Copiar destinatários" className="sap-btn-secondary p-1">
+                            <div className="flex items-center gap-2">
+                              <button onClick={() => copyToClipboard(to)} title="Copiar destinatários" className="w-8 h-8 flex items-center justify-center border border-slate-300 bg-white rounded hover:bg-slate-100 transition" >
                                 <Copy className="w-3.5 h-3.5" />
                               </button>
-                              <a href={mailtoUrl} title="Mailto Link" className="sap-btn-secondary p-1">
+                              <a href={mailtoUrl} title="Mailto Link" className="w-8 h-8 flex items-center justify-center border border-slate-300 bg-white rounded hover:bg-slate-100 transition" >
                                 <ExternalLink className="w-3.5 h-3.5 text-[#2F5F8F]" />
                               </a>
-                              <button
+
+<button
   type="button"
   onClick={() => downloadSinglePdf(eml.entryId)}
   title="Exportar apenas o PDF"
-  className="sap-btn-secondary p-1"
+  className="h-8 px-2 flex items-center justify-center border border-slate-300 bg-white rounded text-[10px] font-semibold hover:bg-slate-100 transition"
 >
-  <span className="text-[10px] font-bold">PDF</span>
+  PDF
 </button>
+
 
                               <a 
                                 href={URL.createObjectURL(eml.blob)} 
                                 download={eml.name} 
                                 onClick={() => toggleEmailSent(eml.entryId)}
                                 title={isSent ? "Reabrir Rascunho" : "Gerar .EML com Anexo"} 
-                                className={`sap-btn-primary px-3 space-x-1.5 transition-all ${isSent ? 'btn-sent opacity-90' : ''}`}
+                                
+className={`
+  h-8 px-3 flex items-center gap-2
+  bg-[#0A6ED1] hover:bg-[#0854A0]
+  text-white text-xs font-semibold
+  rounded
+  transition-all
+  ${isSent ? 'opacity-70' : ''}
+`}
                               >
                                 {isSent ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Download className="w-3.5 h-3.5" />}
                                 <span className="text-[11px] font-bold uppercase">{isSent ? 'Enviado' : 'Enviar E-mail'}</span>
@@ -1001,7 +1014,7 @@ const downloadSinglePdf = (entryId: string) => {
               </div>
 
               <div className="mt-8 flex justify-center border-t border-slate-200 pt-6">
-                 <button onClick={() => window.location.reload()} className="text-[11px] font-bold text-slate-400 hover:text-red-600 flex items-center space-x-2 uppercase tracking-widest">
+                 <button onClick={() => window.location.reload()} className="text-[11px] font-bold text-slate-400 hover:text-red-600 flex items-center gap-2 uppercase tracking-widest">
                    <Trash2 className="w-3.5 h-3.5" />
                    <span>Resetar Aplicação</span>
                  </button>
