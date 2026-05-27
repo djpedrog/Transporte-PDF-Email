@@ -494,30 +494,37 @@ const downloadSinglePdf = (entryId: string) => {
 };
 
   return (
-    <div className="min-h-screen py-6 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
-     <div className="flex items-center space-x-3">
+  <div className="min-h-screen py-6 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
+    
+    <header className="mb-6 flex items-center justify-between border-b border-slate-300 pb-4">
 
-  {/* LOGO */}
-  <div className="w-10 h-10 p-1 bg-[#2F5F8F] rounded shadow-sm flex items-center justify-center">
-    <img src="./rvt-logo.png" className="w-8 h-8 object-cover" />
-  </div>
+      {/* ESQUERDA */}
+      <div className="flex items-center space-x-3">
 
-  {/* TEXTO */}
-  <div className="flex flex-col justify-center leading-tight">
-    <h1 className="text-lg font-semibold text-[#1B1F23]">
-      Relatórios Valores Transportes
-    </h1>
-    <p className="text-[10px] text-slate-500 uppercase tracking-wide">
-      AFSN - Transportes
-    </p>
-  </div>
-
-</div>
-        <div className="hidden sm:flex flex-col justify-center text-right leading-tight">
-          <p className="text-[11px] text-slate-500">Versão 3.6.0</p>
-          <p className="text-[10px] text-slate-400">© 2026 Sumol+Compal</p>
+        {/* LOGO */}
+        <div className="w-10 h-10 p-1 bg-[#2F5F8F] rounded shadow-sm flex items-center justify-center">
+          <img src="./rvt-logo.png" className="w-8 h-8 object-cover" />
         </div>
-      </header>
+
+        {/* TEXTO */}
+        <div className="flex flex-col justify-center leading-tight">
+          <h1 className="text-lg font-semibold text-[#1B1F23]">
+            Relatórios Valores Transportes
+          </h1>
+          <p className="text-[10px] text-slate-500 uppercase tracking-wide">
+            AFSN - Transportes
+          </p>
+        </div>
+
+      </div>
+
+      {/* DIREITA */}
+      <div className="hidden sm:flex flex-col justify-center text-right leading-tight">
+        <p className="text-[11px] text-slate-500">Versão 3.6.0</p>
+        <p className="text-[10px] text-slate-400">© 2026 Sumol+Compal</p>
+      </div>
+
+    </header>
 
       <nav className="flex items-center space-x-px border border-slate-300 bg-white p-0.5 rounded shadow-sm mb-6 overflow-hidden">
         {[
