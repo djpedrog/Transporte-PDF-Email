@@ -498,10 +498,11 @@ const downloadSinglePdf = (entryId: string) => {
       <header className="mb-6 flex items-center justify-between border-b border-slate-300 pb-4">
         <div className="flex items-center space-x-3">
           
-<div className="p-2 bg-[#2F5F8F] rounded shadow-sm flex items-center justify-center">
- <div className="w-10 h-10 p-1 bg-[#2F5F8F] rounded shadow-sm flex items-center justify-center">
 
+<div className="w-10 h-10 p-1 bg-[#2F5F8F] rounded shadow-sm flex items-center justify-center">
+  <img src="./rvt-logo.png" className="w-8 h-8 object-cover" />
 </div>
+
 
           <div>
             <h1 className="text-xl font-bold tracking-tight text-[#1B1F23]">Relatórios Valores Transportes</h1>
