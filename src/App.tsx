@@ -538,10 +538,12 @@ const downloadSinglePdf = (entryId: string) => {
             onClick={() => (activeTab === 'summary' || activeTab === 'preview' || tab.id === 'upload') && setActiveTab(tab.id as Tab)}
             disabled={(tab.id === 'processing' && !isProcessing) || (tab.id === 'summary' && results.pdfs.length === 0)}
             className={`
-              flex-1 flex items-center justify-center space-x-2 px-3 py-1.5 text-xs font-semibold transition-all
-              ${activeTab === tab.id ? 'bg-[#2F5F8F] text-white' : 'text-[#4B5563] hover:bg-[#EAF2FF]'}
-              disabled:opacity-40 disabled:cursor-not-allowed border-r border-slate-200 last:border-r-0
-            `}
+  flex-1 flex items-center justify-center space-x-2 px-3 py-2 text-xs font-semibold transition-all
+  ${activeTab === tab.id
+    ? 'bg-[#0A6ED1] text-white border-b-2 border-[#0854A0]'
+    : 'text-slate-600 hover:bg-slate-100'}
+  disabled:opacity-40 disabled:cursor-not-allowed
+`}
           >
             <tab.icon className="w-3.5 h-3.5" />
             <span>{tab.label}</span>
@@ -615,15 +617,15 @@ const downloadSinglePdf = (entryId: string) => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-slate-300 border border-slate-300 mb-6 overflow-hidden rounded">
                 <div className="p-4 bg-white">
                   <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Total Registos</p>
-                  <p className="text-2xl font-bold text-[#2F5F8F]">{stats.totalRows}</p>
+                  <p className="text-xl font-semiboldtext-[#2F5F8F]">{stats.totalRows}</p>
                 </div>
                 <div className="p-4 bg-white">
                   <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Transportistas</p>
-                  <p className="text-2xl font-bold text-[#2F5F8F]">{stats.uniqueClients}</p>
+                  <p className="text-xl font-semiboldtext-[#2F5F8F]">{stats.uniqueClients}</p>
                 </div>
                 <div className="p-4 bg-white">
                   <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Sem Contacto</p>
-                  <p className="text-2xl font-bold text-[#B00020]">{stats.unmappedCount}</p>
+                  <p className="text-xl font-semiboldtext-[#B00020]">{stats.unmappedCount}</p>
                 </div>
               </div>
 
@@ -811,7 +813,7 @@ const downloadSinglePdf = (entryId: string) => {
 </div>
 
               {stats.unmappedCount > 0 && (
-                <div className="bg-orange-50 border border-orange-200 rounded-2xl p-6 mb-8">
+                <div className="bg-orange-50 border border-orange-200 rounded p-6 mb-6">
                   <div className="flex items-start space-x-4">
                     <AlertCircle className="w-6 h-6 text-orange-600 flex-shrink-0 mt-1" />
                     <div>
@@ -828,10 +830,11 @@ const downloadSinglePdf = (entryId: string) => {
               )}
 
               <div className="flex justify-center space-x-3">
-                <button onClick={() => setActiveTab('upload')} className="sap-btn-secondary px-6">Voltar</button>
+                <button onClick={() => setActiveTab('upload')} className="bg-white border border-slate-300 text-slate-700 text-xs font-semibold px-4 py-2 rounded hover:bg-slate-100 transition-all">Voltar</button>
                 <button
                   onClick={processEverything}
-                  className="sap-btn-primary px-10"
+                  className="bg-[#0A6ED1] hover:bg-[#0854A0] text-white text-xs font-bold px-5 py-2 rounded shadow-sm transition-all flex items-center justify-center"
+
                 >
                   <Play className="w-4 h-4 mr-2" />
                   <span>PROCESSAR TUDO</span>
@@ -872,14 +875,14 @@ const downloadSinglePdf = (entryId: string) => {
               key="summary"
               className="p-6"
             >
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 border-b border-slate-200 pb-6">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 border-b border-slate-200 pb-6">
                 <div>
-                  <h2 className="text-xl font-bold text-[#1B1F23]">Processamento Concluído</h2>
+                  <h2 className="text-lg font-semibold tracking-tight text-[#1B1F23]">Processamento Concluído</h2>
                   <p className="text-xs text-slate-500 uppercase tracking-wide">{results.pdfs.length} Relatórios PDF Gerados | {results.emls.length} Rascunhos de Email</p>
                 </div>
                 <button
                   onClick={downloadZip}
-                  className="sap-btn-primary h-12 px-8 flex items-center space-x-2"
+                  className="bg-[#0A6ED1] hover:bg-[#0854A0] text-white text-sm font-bold px-6 py-3 rounded shadow-sm transition-all flex items-center space-x-2"
                 >
                   <Download className="w-5 h-5" />
                   <span className="text-sm font-bold">BAIXAR ZIP COMPLETO</span>
@@ -966,17 +969,17 @@ const downloadSinglePdf = (entryId: string) => {
                               <div className="text-[11px] text-slate-500 truncate max-w-lg">Para: {to}</div>
                             </div>
                             <div className="flex items-center space-x-1">
-                              <button onClick={() => copyToClipboard(to)} title="Copiar destinatários" className="sap-btn-secondary p-1">
+                              <button onClick={() => copyToClipboard(to)} title="Copiar destinatários" className="bg-white border border-slate-200 p-1.5 rounded hover:bg-slate-100 transition">
                                 <Copy className="w-3.5 h-3.5" />
                               </button>
-                              <a href={mailtoUrl} title="Mailto Link" className="sap-btn-secondary p-1">
+                              <a href={mailtoUrl} title="Mailto Link" className="bg-white border border-slate-200 p-1.5 rounded hover:bg-slate-100 transition">
                                 <ExternalLink className="w-3.5 h-3.5 text-[#2F5F8F]" />
                               </a>
                               <button
   type="button"
   onClick={() => downloadSinglePdf(eml.entryId)}
   title="Exportar apenas o PDF"
-  className="sap-btn-secondary p-1"
+  className="bg-white border border-slate-200 p-1.5 rounded hover:bg-slate-100 transition"
 >
   <span className="text-[10px] font-bold">PDF</span>
 </button>
