@@ -499,7 +499,8 @@ const downloadSinglePdf = (entryId: string) => {
         <div className="flex items-center space-x-3">
           
 <div className="p-2 bg-[#2F5F8F] rounded shadow-sm flex items-center justify-center">
-  <img src="./rvt-logo.png" alt="RVT" className="w-full h-full object-cover"/>
+ <div className="w-10 h-10 p-1 bg-[#2F5F8F] rounded shadow-sm flex items-center justify-center">
+
 </div>
 
           <div>
