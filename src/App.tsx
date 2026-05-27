@@ -501,8 +501,8 @@ const downloadSinglePdf = (entryId: string) => {
             <FileBox className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-xl font-bold tracking-tight text-[#1B1F23]">Transportes | PDF & Email</h1>
-            <p className="text-[11px] text-slate-500 uppercase tracking-wide">SAP Interface Edition</p>
+            <h1 className="text-xl font-bold tracking-tight text-[#1B1F23]">Relatórios Valores Transportes</h1>
+            <p className="text-[11px] text-slate-500 uppercase tracking-wide"></p>
           </div>
         </div>
         <div className="hidden sm:block text-right">
