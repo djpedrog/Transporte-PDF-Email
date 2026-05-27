@@ -597,7 +597,7 @@ const downloadSinglePdf = (entryId: string) => {
                 <button
                   onClick={parseExcels}
                   disabled={!exportFile || !firmsFile || isParsing}
-                  className="sap-btn-primary px-10 shadow-sm"
+                  className="bg-[#0A6ED1] hover:bg-[#0854A0] text-white text-sm font-semibold px-6 py-2 rounded-sm transition flex items-center gap-2 active:scale-[0.98]"
                 >
                   {isParsing ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <ChevronRight className="w-4 h-4 mr-2" />}
                   <span>Carregar Ficheiros</span>
